@@ -1,4 +1,4 @@
-import styles from './index.module.css'
+import styles from './styles.module.css'
 import igniteLogoImg from '../../assets/logo.svg'
 
 export function Header() {
