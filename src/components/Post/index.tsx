@@ -1,45 +1,111 @@
+import { format, formatDistanceToNow } from 'date-fns'
+import pt from 'date-fns/locale/pt'
+import { ChangeEvent, FormEvent, InvalidEvent, useState } from 'react'
+
 import { Avatar } from '../Avatar'
 import { Comment } from '../Comment'
 import styles from './styles.module.css'
 
-export function Post() {
+type Author = {
+  name: string
+  avatarUrl: string
+  role: string
+}
+
+interface PostProps {
+  author: Author
+  publishedAt: Date
+  content: Array<{
+    type: string
+    content: string
+  }>
+}
+
+export function Post({ author, content, publishedAt }: PostProps) {
+  const [comments, setComments] = useState<
+    Array<{ author: Author; content: string }>
+  >([])
+
+  const [newCommentText, setNewCommentText] = useState('')
+
+  const publishedAtDateFortmetted = format(
+    publishedAt,
+    "d 'de' LLLL 'às' HH:mm'h'",
+    {
+      locale: pt
+    }
+  )
+
+  const publishedAtDistanceToNow = formatDistanceToNow(publishedAt, {
+    locale: pt,
+    addSuffix: true
+  })
+
+  const handleSubmitComment = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setComments([...comments, { author, content: newCommentText }])
+    setNewCommentText('')
+  }
+
+  const handleChangeNewComment = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    e.target.setCustomValidity('')
+    setNewCommentText(e.target.value)
+  }
+
+  const handleNewCommentTextInvalid = (
+    e: InvalidEvent<HTMLTextAreaElement>
+  ) => {
+    e.target.setCustomValidity(
+      'Por favor, digite um comentário, campo obrigatório'
+    )
+  }
+
+  const handleDeleteComment = (comment: string) => {
+    setComments(comments.filter((c) => c.content !== comment))
+  }
+
   return (
     <article className={styles.post}>
       <header>
         <div className={styles.author}>
-          <Avatar src="https://github.com/cdfortes.png" />
+          <Avatar src={author.avatarUrl} />
           <div className={styles.authorinfo}>
-            <strong>Carlos Fortes</strong>
-            <span>Web Developer</span>
+            <strong>{author.name}</strong>
+            <span>{author.role}</span>
           </div>
         </div>
 
-        <time title="10 de Junho de 2022" dateTime="2022-06-10 11:19:20">
-          Publicado ha 1h
+        <time
+          title={publishedAtDateFortmetted}
+          dateTime={publishedAt.toString()}
+        >
+          Publicado {publishedAtDistanceToNow} atrás
         </time>
       </header>
       <div className={styles.content}>
-        <p>Fala galeraa 👋</p>
-
-        <p>
-          Acabei de subir mais um projeto no meu portifa. É um projeto que fiz
-          no NLW Return, evento da Rocketseat. O nome do projeto é DoctorCare 🚀
-        </p>
-
-        <p>
-          <a href="">jane.design/doctorcare</a>
-        </p>
-
-        <p>
-          <a href="">#novoprojeto</a> <a href=""> #nlw </a>{' '}
-          <a href=""> #rocketseat</a>{' '}
-        </p>
+        {content.map((item) => {
+          if (item.type === 'paragraph') {
+            return <p key={item.content}>{item.content}</p>
+          } else if (item.type === 'link') {
+            return (
+              <p key={item.content}>
+                <a href="#">{item.content}</a>
+              </p>
+            )
+          }
+        })}
       </div>
 
-      <form className={styles.commentForm}>
+      <form className={styles.commentForm} onSubmit={handleSubmitComment}>
         <strong>Deixe seu feedback</strong>
 
-        <textarea placeholder="Deixe um comentário" />
+        <textarea
+          placeholder="Deixe um comentário"
+          required
+          value={newCommentText}
+          onChange={handleChangeNewComment}
+          onInvalid={handleNewCommentTextInvalid}
+        />
 
         <footer>
           <button type="submit">Publicar</button>
@@ -47,9 +113,14 @@ export function Post() {
       </form>
 
       <div className={styles.commentList}>
-        <Comment />
-        <Comment />
-        <Comment />
+        {comments.map(({ author, content }) => (
+          <Comment
+            key={content}
+            author={author}
+            content={content}
+            onDeleteComment={handleDeleteComment}
+          />
+        ))}
       </div>
     </article>
   )
