@@ -1,11 +1,15 @@
-import { Server, Model, Factory } from 'miragejs'
+import { Server, Model, Factory, hasMany, belongsTo } from 'miragejs'
 import { faker } from '@faker-js/faker'
 export function setupMirage(environment = 'development') {
   return new Server({
     environment,
     models: {
-      post: Model,
-      comment: Model,
+      post: Model.extend({
+        comments: hasMany()
+      }),
+      comment: Model.extend({
+        post: belongsTo()
+      }),
       user: Model
     },
 
@@ -53,7 +57,11 @@ export function setupMirage(environment = 'development') {
     },
 
     seeds(server) {
-      server.createList('post', 2)
+      server.createList('post', 2).forEach((post) =>
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-ignore
+        server.createList('comment', 1, { postId: post.id })
+      )
     },
 
     routes() {
@@ -62,8 +70,14 @@ export function setupMirage(environment = 'development') {
       this.get('/posts', (schema) => {
         return schema.all('post')
       })
+      this.get('/posts/:id/comments', (schema, request) => {
+        const comments = schema.db.posts.find(request.params.id).commentIds
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-ignore
+        return comments.map((commentId) => schema.db.comments.find(commentId))
+      })
       this.get('/comments', (schema) => {
-        return schema.all('comments')
+        return schema.all('comment')
       })
     }
   })

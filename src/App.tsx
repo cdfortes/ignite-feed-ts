@@ -21,6 +21,8 @@ export function App() {
   console.log(posts)
   useEffect(() => {
     api.get('posts').then((response) => setPosts(response.data.posts))
+    api.get('posts/1/comments').then((response) => console.log(response))
+    api.get('comments').then((response) => console.log(response.data))
   }, [])
   return (
     <>
