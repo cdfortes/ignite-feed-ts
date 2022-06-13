@@ -23,7 +23,7 @@ interface PostProps {
 
 export function Post({ author, content, publishedAt }: PostProps) {
   const [comments, setComments] = useState<
-    Array<{ author: Author; content: string }>
+    Array<{ author: Author; content: string; commentDate: Date }>
   >([])
 
   const [newCommentText, setNewCommentText] = useState('')
@@ -43,7 +43,10 @@ export function Post({ author, content, publishedAt }: PostProps) {
 
   const handleSubmitComment = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setComments([...comments, { author, content: newCommentText }])
+    setComments([
+      ...comments,
+      { author, content: newCommentText, commentDate: new Date() }
+    ])
     setNewCommentText('')
   }
 
@@ -113,11 +116,12 @@ export function Post({ author, content, publishedAt }: PostProps) {
       </form>
 
       <div className={styles.commentList}>
-        {comments.map(({ author, content }) => (
+        {comments.map(({ author, content, commentDate }) => (
           <Comment
             key={content}
             author={author}
             content={content}
+            commentDate={commentDate}
             onDeleteComment={handleDeleteComment}
           />
         ))}
