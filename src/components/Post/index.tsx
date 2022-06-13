@@ -43,7 +43,7 @@ export function Post({ author, content, publishedAt }: PostProps) {
 
   const handleSubmitComment = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setComments([...comments, { author, content: e.currentTarget.innerText }])
+    setComments([...comments, { author, content: newCommentText }])
     setNewCommentText('')
   }
 
@@ -58,6 +58,10 @@ export function Post({ author, content, publishedAt }: PostProps) {
     e.target.setCustomValidity(
       'Por favor, digite um comentário, campo obrigatório'
     )
+  }
+
+  const handleDeleteComment = (comment: string) => {
+    setComments(comments.filter((c) => c.content !== comment))
   }
 
   return (
@@ -110,7 +114,12 @@ export function Post({ author, content, publishedAt }: PostProps) {
 
       <div className={styles.commentList}>
         {comments.map(({ author, content }) => (
-          <Comment key={content} author={author} content={content} />
+          <Comment
+            key={content}
+            author={author}
+            content={content}
+            onDeleteComment={handleDeleteComment}
+          />
         ))}
       </div>
     </article>
