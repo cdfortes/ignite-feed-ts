@@ -24,11 +24,11 @@
 
 .authorAndTime strong{
   display: block;
-  font-size: 00.875rem;
+  font-size: 0.875rem;
   line-height: 1.6;
 }
 
-.authorAndTime span{
+.authorAndTime time{
   display: block;
   font-size: 0.75rem;
   color: var(--gray-400);
