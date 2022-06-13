@@ -1,25 +1,11 @@
-import { format, formatDistanceToNow } from 'date-fns'
+import { format, formatDistanceToNow, parseISO } from 'date-fns'
 import pt from 'date-fns/locale/pt'
 import { ChangeEvent, FormEvent, InvalidEvent, useState } from 'react'
 
 import { Avatar } from '../Avatar'
 import { Comment } from '../Comment'
 import styles from './styles.module.css'
-
-type Author = {
-  name: string
-  avatarUrl: string
-  role: string
-}
-
-interface PostProps {
-  author: Author
-  publishedAt: Date
-  content: Array<{
-    type: string
-    content: string
-  }>
-}
+import { PostProps, Author } from '../../types'
 
 export function Post({ author, content, publishedAt }: PostProps) {
   const [comments, setComments] = useState<
@@ -29,17 +15,20 @@ export function Post({ author, content, publishedAt }: PostProps) {
   const [newCommentText, setNewCommentText] = useState('')
 
   const publishedAtDateFortmetted = format(
-    publishedAt,
+    parseISO(publishedAt.toString()),
     "d 'de' LLLL 'às' HH:mm'h'",
     {
       locale: pt
     }
   )
 
-  const publishedAtDistanceToNow = formatDistanceToNow(publishedAt, {
-    locale: pt,
-    addSuffix: true
-  })
+  const publishedAtDistanceToNow = formatDistanceToNow(
+    parseISO(publishedAt.toString()),
+    {
+      locale: pt,
+      addSuffix: true
+    }
+  )
 
   const handleSubmitComment = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()

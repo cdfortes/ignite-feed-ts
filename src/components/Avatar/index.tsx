@@ -1,9 +1,6 @@
 import styles from './styles.module.css'
 
-interface AvatarProps {
-  src: string
-  hasBorder?: boolean
-}
+import { AvatarProps } from '../../types'
 
 export function Avatar({ hasBorder = true, src }: AvatarProps) {
   return (

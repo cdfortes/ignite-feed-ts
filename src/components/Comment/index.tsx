@@ -5,15 +5,7 @@ import { useState } from 'react'
 import { Avatar } from '../Avatar'
 import styles from './styles.module.css'
 
-interface CommentProps {
-  author: {
-    name: string
-    avatarUrl: string
-  }
-  content: string
-  commentDate: Date
-  onDeleteComment: (comment: string) => void
-}
+import { CommentProps } from '../../types'
 
 export function Comment({
   author,
