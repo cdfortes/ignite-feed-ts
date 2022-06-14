@@ -1,45 +1,49 @@
-import { format, formatDistanceToNow } from 'date-fns'
+import { format, formatDistanceToNow, parseISO } from 'date-fns'
 import pt from 'date-fns/locale/pt'
-import { ChangeEvent, FormEvent, InvalidEvent, useState } from 'react'
+import {
+  ChangeEvent,
+  FormEvent,
+  InvalidEvent,
+  useState,
+  useEffect
+} from 'react'
+
+import { api } from '../../services/api'
 
 import { Avatar } from '../Avatar'
 import { Comment } from '../Comment'
 import styles from './styles.module.css'
+import { PostProps, Author } from '../../types'
 
-type Author = {
-  name: string
-  avatarUrl: string
-  role: string
-}
-
-interface PostProps {
-  author: Author
-  publishedAt: Date
-  content: Array<{
-    type: string
-    content: string
-  }>
-}
-
-export function Post({ author, content, publishedAt }: PostProps) {
+export function Post({ id, author, content, publishedAt }: PostProps) {
   const [comments, setComments] = useState<
     Array<{ author: Author; content: string; commentDate: Date }>
   >([])
 
+  useEffect(() => {
+    api
+      .get(`posts/${id}/comments`)
+      .then((response) => setComments(response.data))
+    api.get('comments').then((response) => console.log(response.data))
+  }, [id])
+
   const [newCommentText, setNewCommentText] = useState('')
 
   const publishedAtDateFortmetted = format(
-    publishedAt,
+    parseISO(publishedAt.toString()),
     "d 'de' LLLL 'às' HH:mm'h'",
     {
       locale: pt
     }
   )
 
-  const publishedAtDistanceToNow = formatDistanceToNow(publishedAt, {
-    locale: pt,
-    addSuffix: true
-  })
+  const publishedAtDistanceToNow = formatDistanceToNow(
+    parseISO(publishedAt.toString()),
+    {
+      locale: pt,
+      addSuffix: true
+    }
+  )
 
   const handleSubmitComment = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -121,7 +125,7 @@ export function Post({ author, content, publishedAt }: PostProps) {
             key={content}
             author={author}
             content={content}
-            commentDate={commentDate}
+            commentDate={parseISO(commentDate.toString())}
             onDeleteComment={handleDeleteComment}
           />
         ))}

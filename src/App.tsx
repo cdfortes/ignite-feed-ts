@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+
 import { Header } from './components/Header'
 import { Post } from './components/Post'
 import { Sidebar } from './components/Sidebar'
@@ -5,58 +7,36 @@ import { Sidebar } from './components/Sidebar'
 import './global.css'
 import styles from './App.module.css'
 
-const posts = [
-  {
-    id: 1,
-    author: {
-      avatarUrl: 'https://github.com/cdfortes.png',
-      name: 'Carlos Fortes',
-      role: 'Web Developer'
-    },
-    content: [
-      { type: 'paragraph', content: 'Fala Galeraa 👋' },
-      {
-        type: 'paragraph',
-        content:
-          'Acabei de subir mais um projeto na rocketseat para agregar o portifólio de você. É um projeto que fiz para desenvolvermos juntos na NLW Return, evento da Rocketseat. O nome do projeto é DoctorCare 🚀'
-      },
-      { type: 'link', content: 'jane.design/doctorcare' }
-    ],
-    publishedAt: new Date('2022-06-10 16:00:00')
-  },
-  {
-    id: 2,
-    author: {
-      avatarUrl: 'https://github.com/maykbrito.png',
-      name: 'Maykebrito',
-      role: 'Educator @Roketseat'
-    },
-    content: [
-      { type: 'paragraph', content: 'Faaala Dev 👋' },
-      {
-        type: 'paragraph',
-        content:
-          'Acabei de subir mais um projeto na rocketseat para agregar o portifólio de você. É um projeto que fiz para desenvolvermos juntos na NLW Return, evento da Rocketseat. O nome do projeto é DoctorCare 🚀'
-      },
-      { type: 'link', content: 'jane.design/doctorcare' }
-    ],
-    publishedAt: new Date('2022-06-10 15:30:00')
-  }
-]
+import { api } from './services/api'
+
+import { PostProps } from './types'
+import { setupMirage } from './server'
+
+if (process.env.NODE_ENV === 'development') {
+  setupMirage()
+}
 
 export function App() {
+  const [posts, setPosts] = useState<Array<PostProps>>([])
+  console.log(posts)
+  useEffect(() => {
+    api.get('posts').then((response) => setPosts(response.data.posts))
+    api.get('posts/1/comments').then((response) => console.log(response))
+    api.get('comments').then((response) => console.log(response.data))
+  }, [])
   return (
     <>
       <Header />
       <div className={styles.wrapper}>
         <Sidebar />
         <main>
-          {posts.map((post) => (
+          {posts.map(({ id, author, content, publishedAt }) => (
             <Post
-              key={post.id}
-              author={post.author}
-              content={post.content}
-              publishedAt={post.publishedAt}
+              id={id}
+              key={id}
+              author={author}
+              content={content}
+              publishedAt={publishedAt}
             />
           ))}
         </main>
